@@ -11,8 +11,9 @@ filewriter = open(sys.argv[3], 'w')
 def writeEntry(ipAddress):
     filewriter.write(ipAddress + "," + log[ipAddress][0].strftime("%Y-%m-%d %H:%M:%S") + "," +  log[ipAddress][1].strftime("%Y-%m-%d %H:%M:%S") + "," +  str(log[ipAddress][2]) + "," +  str(log[ipAddress][3]) + '\n')
 
-#Initialize empty OrderedDict for logging of sessions.
+#Initialize empty OrderedDict for logging of sessions. Set empty time counter.
 log = OrderedDict()
+previousTime = 0
 
 #Open log.csv and sequentially process each line.
 with open(logfile, 'r') as csvfile:
@@ -21,12 +22,14 @@ with open(logfile, 'r') as csvfile:
         ip = row['ip']
         time = datetime.datetime.strptime("{}, {}".format(row['date'], row['time']), "%Y-%m-%d, %H:%M:%S")
 
-        #Check if any sessions are inactive in ordered dict. Write/log it and remove from ordered dict.
-        expired = [j for j in log if time - log[j][1] > interval]
-        if len(expired) > 0:
-            for ipAddress in expired:
-                writeEntry(ipAddress)
-                del log[ipAddress]
+        #Check if any sessions are inactive in ordered dict if time has changed. Write/log it and remove from ordered dict.
+        if time != previousTime:
+            previousTime = time
+            expired = [j for j in log if time - log[j][1] > interval]
+            if len(expired) > 0:
+                for ipAddress in expired:
+                    writeEntry(ipAddress)
+                    del log[ipAddress]
 
         #Check if ip address of current line is in ordered dict. If present, modify its entry and continue to next line.
         if ip in log:
