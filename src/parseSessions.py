@@ -35,7 +35,7 @@ with open(logfile, 'r') as csvfile:
             log[ip][3] += 1
             continue
 
-        #Add new entry to ordered dict.
+        #Add new entry to ordered dict. List of log details is in the following order [startTime, endTime, timeDiff, fileCounter]
         log[ip] = [time, time, 1, 1]
 
     #Once csv iteration ends, write contents of ordered dictionary to sessionization.txt as all sessions now ended.
